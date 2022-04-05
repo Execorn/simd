@@ -24,7 +24,8 @@ int main() {
     scr_t scr = (scr_t) *txVideoMemory();
     
     const int    max_points  = 256;
-    const float  dx    = 1/800.f, dy = 1/800.f;
+    const float  dx    = 1/800.f, 
+                 dy    = 1/800.f;
 
     const __m256 maxR_vector = _mm256_set1_ps (100.f);
     const __m256 _255  = _mm256_set1_ps (255.f);
@@ -37,34 +38,42 @@ int main() {
     while (do_draw_cycle) {
         if (GetAsyncKeyState (VK_ESCAPE)) do_draw_cycle = 0;
         
-        if (txGetAsyncKeyState (VK_RIGHT)) xC    += dx * (txGetAsyncKeyState (VK_SHIFT)? 100.f : 10.f);
-        if (txGetAsyncKeyState (VK_LEFT))  xC    -= dx * (txGetAsyncKeyState (VK_SHIFT)? 100.f : 10.f);
-        if (txGetAsyncKeyState (VK_DOWN))  yC    -= dy * (txGetAsyncKeyState (VK_SHIFT)? 100.f : 10.f);
-        if (txGetAsyncKeyState (VK_UP))    yC    += dy * (txGetAsyncKeyState (VK_SHIFT)? 100.f : 10.f);
-        if (txGetAsyncKeyState ('A'))      scale += dx * (txGetAsyncKeyState (VK_SHIFT)? 100.f : 10.f);
+        if (txGetAsyncKeyState (VK_RIGHT)) xC    += dx * (txGetAsyncKeyState (VK_SHIFT)? 50.f : 10.f);
+        if (txGetAsyncKeyState (VK_LEFT))  xC    -= dx * (txGetAsyncKeyState (VK_SHIFT)? 50.f : 10.f);
+        if (txGetAsyncKeyState (VK_DOWN))  yC    -= dy * (txGetAsyncKeyState (VK_SHIFT)? 50.f : 10.f);
+        if (txGetAsyncKeyState (VK_UP))    yC    += dy * (txGetAsyncKeyState (VK_SHIFT)? 0.f : 10.f);
+        if (txGetAsyncKeyState ('A'))      scale += dx * (txGetAsyncKeyState (VK_SHIFT)? 5100.f : 10.f);
         if (txGetAsyncKeyState ('Z'))      scale -= dx * (txGetAsyncKeyState (VK_SHIFT)? 100.f : 10.f);
 
         #pragma omp parallel for
-        for (int iy = 0; iy < 1080 * do_draw_cycle; iy++) {
+        for (int iy = 0; iy < WINDOW_HEIGHT * do_draw_cycle; ++iy) {
             if (GetAsyncKeyState (VK_ESCAPE)) do_draw_cycle = 0;
 
-            float y0 = ( ((float) iy - (float) WINDOW_HEIGHT / 2) * dy) * scale + O_y + yC;
+            /**
+            * ! Formula for new y0 coord:
+            * ! We are decreasing iy by WINDOW_HEIGHT / 2 to find, range of point's coordinates on the screen
+            * ! 0_y + yC are added to find the actual location based on the previous coordinates
+            * 
+            * ? x0 is calculated inside of the cycle because OpenMP does not allow not constant variable usage in cycle ? 
+            */
+            float y0 = (((float) iy - (float) WINDOW_HEIGHT / 2) * dy) * scale + O_y + yC;
 
             #pragma omp parallel for
-            for (int ix = 0; ix < WINDOW_WIDTH; ix += 8/*, x0 += dx * 8 * scale*/) { 
-                float x0 = ( ((float) ix - (float) WINDOW_WIDTH / 2) * dx ) * scale + O_x + xC;
-                __m256 X0 = _mm256_add_ps (_mm256_set1_ps (x0), _mm256_mul_ps (_76543210, _mm256_set1_ps (dx * scale)));
-                __m256 Y0 =             _mm256_set1_ps (y0);
+            for (int ix = 0; ix < WINDOW_WIDTH; ix += 8 /*, x0 += dx * 8 * scale*/) { 
+                float x0 = (((float) ix - (float) WINDOW_WIDTH / 2) * dx) * scale + O_x + xC;
+                __m256  X0 = _mm256_add_ps (_mm256_set1_ps (x0), _mm256_mul_ps (_76543210, _mm256_set1_ps (dx * scale)));
+                __m256  Y0 =                _mm256_set1_ps (y0);
 
-                __m256 X = X0, Y = Y0;
+                __m256  X = X0, 
+                        Y = Y0;
                 
-                __m256i N = _mm256_setzero_si256();
+                __m256i N = _mm256_setzero_si256(); // Setting all elements of N (vector) to zero 
                 
                 uint8_t do_calc_points = 1;
                 for (int n = 0; n < max_points; n++) {
                     if (do_calc_points) {
-                        __m256 x2 = _mm256_mul_ps (X, X),
-                           y2 = _mm256_mul_ps (Y, Y);
+                        __m256  x2 = _mm256_mul_ps (X, X),
+                                y2 = _mm256_mul_ps (Y, Y);
                            
                         __m256 r2 = _mm256_add_ps (x2, y2);
 

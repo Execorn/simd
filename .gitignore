@@ -35,3 +35,5 @@ mandelbrot/build/mandelbrot_sse_avx.exe
 mandelbrot/build/mandelbrot_sse_avx.o
 overlay/build/overlay.o
 overlay/build/overlay.exe
+mandelbrot/build/mandelbrot_sse_avx.exe.log
+mandelbrot/build/mandelbrot_sse_avx.exe.log.dmp
