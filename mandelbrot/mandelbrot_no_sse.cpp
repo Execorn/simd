@@ -81,8 +81,7 @@ int main()
                       
                 int   N [4] = {0, 0, 0, 0};
 
-                for (int n = 0; n < nMax; n++)
-                    {
+                for (int n = 0; n < nMax; n++){
                     float x2[4] = {}; mm_mul_ps (x2, X, X);
                     float y2[4] = {}; mm_mul_ps (y2, Y, Y);
 

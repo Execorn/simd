@@ -116,7 +116,7 @@ int main() {
                     float* pI = (float*) &I;
 
                     BYTE    c     = (BYTE) pI[i];
-                    RGBQUAD color = (pn[i] < max_points)? RGBQUAD { (BYTE) (255-c), (BYTE) (c%2 * 64), c } : RGBQUAD {};
+                    RGBQUAD color = (pn[i] < max_points)? RGBQUAD { (BYTE) (255-2*c), (BYTE) (c%2 * 64), c } : RGBQUAD {};
  
                     scr[iy][ix+i] = color;
                 }
