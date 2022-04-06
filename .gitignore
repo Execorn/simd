@@ -39,3 +39,4 @@ mandelbrot/build/mandelbrot_sse_avx.exe.log
 mandelbrot/build/mandelbrot_sse_avx.exe.log.dmp
 overlay/build/overlay.exe.log.dmp
 overlay/build/overlay.exe.log
+.vscode/settings.json
