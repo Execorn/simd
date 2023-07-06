@@ -1,4 +1,3 @@
-
 #include "TXLib.h"
 #include <immintrin.h>
 
